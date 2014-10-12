@@ -37,55 +37,23 @@ public class RequestServer {
 		System.out.println("cpu: "+cpu);
 		System.out.println("storage: "+storage);
 		System.out.println("ram: "+ram);
-		System.out.println("Time to serve the request:" + (time * 1000));
+		System.out.println("Time to serve the request:" + time);
 		
-		try {
-			Thread.sleep((long)(time * 1000));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		RequestThread requestThread = new RequestThread();
+		requestThread.setCpu(cpu);
+		requestThread.setHd(storage);
+		requestThread.setLocation(location);
+		requestThread.setRam(ram);
+		requestThread.setTime(time);
+		requestThread.setServer(server);
+		requestThread.setRequest(request);
+		
+		requestThread.start();
 				
-		generateResponse(String.valueOf(server), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram));
 		
 		return "";
 	}
 	
 	
-	public int generateResponse(String server, String location, String request, String cpu, String storage, String ram) {
-		String url = "http://"+server+":8080/LoadBalancer/response";
-		String charset = "UTF-8";
-		int status = 0;
-		
-		try {
-			String query = String.format("location=%s&request=%s&cpu=%s&storage=%s&ram=%s", 
-				URLEncoder.encode(location, charset),
-				URLEncoder.encode(request, charset), 
-				URLEncoder.encode(cpu, charset), 
-			    URLEncoder.encode(storage, charset),
-			    URLEncoder.encode(ram, charset));
-			
-			HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-			connection.setRequestMethod("POST");
-			connection.setDoOutput(true); // Triggers POST.
-			connection.setRequestProperty("Accept-Charset", charset);
-			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
-			//connection.connect();
-			try (OutputStream output = connection.getOutputStream()) {
-			    output.write(query.getBytes(charset));
-			    output.flush();
-			    output.close();
-			}
-			
-			status = connection.getResponseCode();
-			
-			System.out.println("This is the status from server: "+ status);
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return status;
-	}	
+	
 }
